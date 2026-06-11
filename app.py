@@ -25,8 +25,16 @@ def get_config(name):
 
 domain = get_config("DOMAIN")
 all_emails = list(filter(None,get_config("USERS").split(",")))
-unrestricted_emails = list(filter(None,get_config("UNRESTRICTED_USERS").split(","))
-restricted_projects = list(filter(None,get_config("RESTRICTED_PROJECTS").split(","))
+unrestricted_emails = list(filter(None,get_config("UNRESTRICTED_USERS").split(",")))
+restricted_projects = list(filter(None,get_config("RESTRICTED_PROJECTS").split(",")))
+
+with open(os.path.expanduser("~/public_html/.htaccess"), 'w') as f:
+	f.write(f"""AuthType Shibboleth
+ShibRequestSetting requireSession 1
+Require shib-user {' '.join([x.split('<')[1].strip('<> ') for x in all_emails])}
+ShibUseHeaders On
+""")
+
 
 app = Flask(__name__)
 mysql = MySQL()
@@ -1002,11 +1010,4 @@ def delete_watcher():
 	return render_template("redirect_show.html", uid=sanitize(request.form['uid']))
 
 if __name__ == '__main__':
-	with open(os.path.expanduser("~/public_html/.htaccess")) as f:
-		f.write(f"""AuthType Shibboleth
-ShibRequestSetting requireSession 1
-Require shib-user {' '.join([x.split('<')[1].strip('<> ') for x in all_emails])}
-ShibUseHeaders On
-""")
-	
 	app.run()
