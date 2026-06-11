@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Samples</title>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js"></script>
+	<style>
+	body {
+		padding-left: 5vw;
+		padding-right: 5vw;
+		padding-top: 5vh;
+		padding-bottom: 5vh;
+		touch-action: manipulation;
+	}
+	</style>
+</head>
+<body>
+<!--<div class="d-flex flex-column min-vh-100 justify-content-center align-items-center">-->
+	<p>
+		<a href="/samples"><button class="btn btn-secondary">Back to overview</button></a>
+		<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#addProcessModal">
+		Add process
+		</button>
+	</p>
+	<div class="modal fade" id="addProcessModal" tabindex="-1" aria-labelledby="addProcessLabel" aria-hidden="true">
+		<div class="modal-dialog">
+		<div class="modal-content">
+		  <div class="modal-header">
+			<h1 class="modal-title fs-5" id="addProcessLabel">Add process</h1>
+			<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+		  </div>
+	<form action="/samples/add_process" method="post">
+		  <div class="modal-body">
+
+		<div class="form-group">
+		<label for="processname">Process Name</label>
+		<input type="text" class="form-control" id="processname" name="processname">
+		</div>
+
+		  </div>
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+			<button type="submit" class="btn btn-primary">Submit</button>
+		  </div>
+		</form>
+		</div>
+		</div>
+	</div>
+
+	<div class="table-responsive">
+		<table id="table" data-toggle="table" data-search="true" data-show-refresh="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50, 100, all]" data-page-size="All" data-sortable="true" data-filter-control="true" data-filter-control-visible="false" data-url="/samples/process.json">
+		<thead>
+			<tr>
+				<th data-field="ID" data-sortable="true" data-filter-control="input">#</th>
+				<th data-field="ProcessName" data-sortable="true" data-filter-control="input">Process Name</th>
+				<th data-field="ViewButton" data-formatter="ViewButton">View</th>
+				<th data-field="DeleteButton" data-formatter="DeleteButton">Delete</th>
+			</tr>
+		</thead>
+		</table>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="editProcessModal" tabindex="-1" aria-labelledby="editProcessLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h1 class="modal-title fs-5" id="editProcessLabel">Edit process</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+				<form action="/samples/edit_process" method="post">
+					<div class="modal-body">
+						<p id="editProcessInfo"></p>
+						<input type="hidden" id="editProcessName" name="processname" value="">
+						<input type="hidden" id="editProcessId" name="id">
+						<input type="hidden" id="editProcessField" name="field" value="">
+						<div class="form-group">
+							<label id="editProcessPrettyField" for="editProcessValue"></label>
+							<input type="text" class="form-control" id="editProcessValue" name="new_value">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Confirm</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="deleteProcessModal" tabindex="-1" aria-labelledby="deleteProcessLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h1 class="modal-title fs-5" id="deleteStepLabel">Delete process</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+				<form action="/samples/delete_process" method="post">
+					<div class="modal-body">
+						<p id="deleteProcessInfo"></p>
+						<input type="hidden" id="deleteProcessName" name="processname">
+						<input type="hidden" id="deleteProcessId" name="id">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-danger">Confirm</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<script>
+	function DeleteButton(value, row, idx) {
+		return '<button type="button" class="btn btn-danger" onclick="DeleteProcess(\''+row["ProcessName"]+'\',' + row["ID"] + ');">Delete</button>';
+	}
+	function DeleteProcess(processName, id) {
+		document.getElementById('deleteProcessInfo').textContent = "Would you like to delete " + processName + "?";
+		document.getElementById('deleteProcessId').value = id;
+		document.getElementById('deleteProcessName').value = processName;
+		$('#deleteProcessModal').modal('show');
+	}
+	function ViewButton(value, row, idx) {
+		return '<a href="/samples/process_variables?'+(new URLSearchParams({name: row['ProcessName']})).toString()+'"><button type="button" class="btn btn-primary">View</button>';
+	}
+	$('#table').on('dbl-click-cell.bs.table', function (e, field, value, row, element) {
+		if (!field.includes("Button")) {
+			document.getElementById('editProcessInfo').innerHTML = '';
+			document.getElementById('editProcessName').value = row['ProcessName'];
+			document.getElementById('editProcessId').value = row['ID'];
+			document.getElementById('editProcessField').value = field;
+			document.getElementById('editProcessValue').value = row[field];
+			document.getElementById('editProcessPrettyField').innerHTML = field;
+			$('#editProcessModal').modal('show');
+		}
+	});
+	</script>
+<!--</div>-->
+	</body>
+</html>

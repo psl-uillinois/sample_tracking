@@ -1,0 +1,7 @@
+export DOMAIN=
+export DATABASE_NAME=
+export DATABASE_USER=
+export DATABASE_PW=
+export USERS=
+export UNRESTRICTED_USERS=
+export RESTRICTED_PROJECTS=

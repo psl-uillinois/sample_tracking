@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Samples</title>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.css">
+		<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.24.1/dist/bootstrap-table.min.js"></script>
+		<script src="/assets/bootstrap-table-cookie.js"></script>
+		<style>
+		body {
+			padding-left: 5vw;
+			padding-right: 5vw;
+			padding-top: 5vh;
+			padding-bottom: 5vh;
+			touch-action: manipulation;
+		}
+		.customtooltip {
+			text-decoration: underline;
+			text-decoration-style: dotted;
+			text-decoration-thickness: 1px;
+		}
+		</style>
+	</head>
+	<body>
+<div>
+	<a href="/samples"><button class="btn btn-secondary">Back to overview</button></a><br/><br/>
+
+	<div class="table-responsive">
+		<table id="sample" data-toggle="table" data-url="/samples/samples.json?uid={{ uid }}">
+		<thead>
+			<tr>
+				<th data-field="Project" data-sortable="true">Project</th>
+				<th data-field="ID" data-sortable="true">ID</th>
+				<th data-field="Location" data-sortable="true">Location</th>
+				<th data-field="PriorName" data-sortable="true">Previous name</th>
+				<th data-field="Description" data-sortable="true">Description</th>
+				<th data-field="Creation" data-sortable="true">Creation</th>
+			</tr>
+		</thead>
+		</table>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="editSampleModal" tabindex="-1" aria-labelledby="editSampleLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h1 class="modal-title fs-5" id="editSampleLabel">Edit sample</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+				<form action="/samples/edit" method="post">
+					<div class="modal-body">
+						<p id="editSampleInfo"></p>
+						<input type="hidden" name="uid" value="{{ uid }}">
+						<input type="hidden" id="editSampleField" name="field" value="">
+						<div class="form-group">
+							<label id="editSamplePrettyField" for="editSampleValue"></label>
+							<input type="text" class="form-control" id="editSampleValue" name="new_value">
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Confirm</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<br/>
+	<p>
+		<button class="btn btn-danger" type="button" data-bs-toggle="modal" data-bs-target="#deleteSampleModal">
+		Delete sample
+		</button>
+	</p>
+	
+	<div class="modal fade" id="deleteSampleModal" tabindex="-1" aria-labelledby="deleteSampleLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h1 class="modal-title fs-5" id="deleteSampleLabel">Delete sample</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+				<form action="/samples/delete" method="post">
+					<div class="modal-body">
+						<p id="deleteSampleInfo">Are you sure you want to delete this entire sample?</p>
+						<input type="hidden" name="uid" value="{{ uid }}">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-danger">Confirm</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<hr class="border-3"/>
+	
+	<div class="form-check"><input class="form-check-input" type="checkbox" value="" id="rawParameterEdit" /><label class="form-check-label" for="rawParameterEdit">Edit process parameters as a raw text string</label></div>
+
+	<div class="table-responsive">
+		<table id="steps" data-escape="true" data-toggle="table" data-search="true" data-show-refresh="true" data-show-columns="true" data-pagination="true" data-page-list="[10, 25, 50, 100, all]" data-page-size="All" data-page-size="All" data-url="/samples/steps.json?uid={{ uid }}">
+		<thead>
+			<tr>
+				<th data-field="ID">#</th>
+				<th data-field="ProcessName">Process</th>
+				<th data-field="ProcessInfoFormatted" data-formatter="FormatProcessInfo">Parameters</th>
+				<th data-field="Comments">Comment</th>
+				<th data-field="FileLink" data-formatter="FormatFileLink">Files</th>
+				<th data-field="Completed">Date</th>
+				<th data-field="User" data-formatter="FormatUsers">User</th>
+				<!--<th data-field="Active" data-formatter="ActiveButton">Active</th>-->
+				<th data-field="CompletedButton" data-formatter="CompletedButton">Complete</th>
+				<th data-field="DeleteStepButton" data-formatter="DeleteStepButton">Delete</th>
+			</tr>
+		</thead>
+		</table>
+	</div>
+	
+	<div class="modal fade" id="completeStepModal" tabindex="-1" aria-labelledby="completeStepLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h1 class="modal-title fs-5" id="completeStepLabel">Complete step</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+				<form action="/samples/complete_step" method="post">
+					<div class="modal-body">
+						<p id="completeStepInfo"></p>
+						<input type="hidden" name="uid" value="{{ uid }}">
+						<input type="hidden" id="completeStepId" name="id">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Confirm</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="deleteStepModal" tabindex="-1" aria-labelledby="deleteStepLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h1 class="modal-title fs-5" id="deleteStepLabel">Delete step</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+				<form action="/samples/delete_step" method="post">
+					<div class="modal-body">
+						<p id="deleteStepInfo"></p>
+						<input type="hidden" name="uid" value="{{ uid }}">
+						<input type="hidden" id="deleteStepId" name="id">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-danger">Confirm</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="editStepModal" tabindex="-1" aria-labelledby="editStepLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h1 class="modal-title fs-5" id="editStepLabel">Edit step</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+				<form id="editStepForm" action="/samples/edit_step" method="post">
+					<div class="modal-body">
+						<p id="editStepInfo"></p>
+						<input type="hidden" name="uid" value="{{ uid }}">
+						<input type="hidden" id="editStepId" name="id" value="">
+						<input type="hidden" id="editStepField" name="field" value="">
+						<div class="form-group">
+							<label id="editStepPrettyField" for="editStepValue"></label>
+							<textarea class="form-control" id="editStepValue" name="new_value" rows="2"></textarea>
+						</div>
+						<script>
+						$("#editStepValue").keypress(function (e) {
+							if (e.which == 13 && e.shiftKey == false) {
+								e.preventDefault();
+								$("#editStepForm").submit();
+							}
+						});
+						</script>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Confirm</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="editParamsModal" tabindex="-1" aria-labelledby="editParamsLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h1 class="modal-title fs-5" id="editParamsLabel">Edit step</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+				<form action="/samples/edit_params" method="post">
+					<div class="modal-body">
+						<p id="editParamsInfo"></p>
+						<input type="hidden" name="uid" value="{{ uid }}">
+						<input type="hidden" id="editParamsId" name="id" value="">
+						
+						<div class="table-responsive">
+							<table id="editParamsTable" data-toggle="table" >
+							<thead>
+								<tr>
+									<th data-field="Variable" data-sortable="true" data-formatter="FormatParam">Variable</th>
+									<th data-field="VariableValue" data-sortable="true" data-formatter="FormatParamValue">Value</th>
+									<th data-field="Unit">Unit</th>
+								</tr>
+							</thead>
+							</table>
+						</div>
+						<br/>
+						<button type="button" class="btn btn-primary" onclick="AddRowParams();">Add variable</button>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Confirm</button>
+					</div>
+				</form>
+				<script>
+				function AddRowParams() {
+					var table_params_data = $("#editParamsTable").bootstrapTable('getData');
+					var next_index = 0;
+					if (table_params_data.length > 0) {
+						next_index = table_params_data.at(-1)["Index"] + 1;
+					}
+					$("#editParamsTable").bootstrapTable('append', [{Custom: true, Variable: '', Options: null, Unit: null, VariableValue: '', Index: next_index}]);
+				}
+				function FormatParam(value, row, idx) {
+					if (row["Custom"]) {
+						return '<input type="hidden" class="form-control" name="custom_'+row["Index"]+'" value="true"><input type="text" class="form-control" name="variable_'+row["Index"]+'" value="'+row["Variable"]+'" />';
+					} else {
+						return '<input type="hidden" class="form-control" name="custom_'+row["Index"]+'" value="false"><input type="hidden" class="form-control" name="variable_'+row["Index"]+'" value="'+row["Variable"]+'" />'+value;
+					}
+				}
+				function FormatParamValue(value, row, idx) {
+					var variablevalue = row["VariableValue"];
+					if (variablevalue == null) {
+						variablevalue = '';
+					}
+					if (row["Custom"] || !row["Options"]) {
+						return '<input type="text" class="form-control" name="variablevalue_'+row["Index"]+'" value="'+variablevalue+'" />';
+					} else {
+						var options = '<option value=""></option>';
+						var optionText = row["Options"].split(",");
+						var actualOptions = [];
+						for (var i = 0; i < optionText.length; i++) {
+							var option = optionText[i];
+							var tooltip = "";
+							if (option.includes("|")) {
+								tooltip = option.split("|")[1];
+								option = option.split("|")[0];
+							}
+							actualOptions.push(option);
+							options += '<option value="' + option + '"'+(tooltip == "" ? "" : (' title="'+tooltip+'"'))+(option == variablevalue ? ' selected' : '')+'>' + option + '</option>';
+						}
+						if (variablevalue != '' && !actualOptions.includes(variablevalue)) {
+							options += '<option value="' + variablevalue + '" selected>' + variablevalue + '</option>';
+						}
+						
+						options += '<option value="other">Other</option>'
+						
+						return ('<select class="form-select" id="variablevalue_'+row["Index"]+'" name="variablevalue_'+row["Index"]+'" value="'+variablevalue+'" onchange="ChangeVariableValue('+row["Index"]+')">' + options + "</select>"
+						+'<input type="text" class="form-control" id="variablevalue_secondary_'+row["Index"]+'" name="variablevalue_secondary_'+row["Index"]+'" style="display:none;" disabled>');
+					}
+				}
+				function ChangeVariableValue(idx) {
+					var is_other = (document.getElementById("variablevalue_" + idx).value == "other");
+					document.getElementById("variablevalue_secondary_" + idx).style.display = is_other ? "block" : "none";
+					document.getElementById("variablevalue_secondary_" + idx).disabled = !is_other;
+				}
+				</script>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h1 class="modal-title fs-5" id="editUserLabel">Edit step</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+				<form action="/samples/edit_step" method="post">
+					<div class="modal-body">
+						<p id="editUserInfo"></p>
+						<input type="hidden" name="uid" value="{{ uid }}">
+						<input type="hidden" id="editUserId" name="id" value="">
+						<input type="hidden" id="editUserField" name="field" value="">
+						<div class="form-group">
+							<label id="editUserPrettyField" for="editUserValue"></label>
+							<select class="form-select" id="editUserValue" name="new_value">
+							<option value="">None</option>
+							{% for email in all_emails %}
+							<option value="{{ email }}">{{ email }}</option>
+							{% endfor %}
+							</select>
+						</div>
+						<div class="form-check"><input class="form-check-input" type="checkbox" value="" id="editUserPlanned" name="planned"/><label class="form-check-label" for="editUserPlanned">Planned</label></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Confirm</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="toggleActiveModal" tabindex="-1" aria-labelledby="toggleActiveLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h1 class="modal-title fs-5" id="toggleActiveLabel">Toggle active</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+				<form action="/samples/edit_step" method="post">
+					<div class="modal-body">
+						<p id="toggleActiveInfo"></p>
+						<input type="hidden" name="uid" value="{{ uid }}">
+						<input type="hidden" id="toggleActiveId" name="id">
+						<input type="hidden" id="toggleActiveField" name="field" value="Active">
+						<input type="hidden" id="toggleActiveValue" name="new_value">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary">Confirm</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<br/>
+	<form action="/samples/add_step" method="post">
+		<input type="hidden" id="uid" name="uid" value="{{ uid }}">
+		<div class="form-group">
+			<label for="project">Process Name</label>
+			<select class="form-select" id="processname_addstep" name="processname" onchange="ChangeAddProcess()">
+			<option disabled selected value> -- select a process -- </option>
+			{% for process_name in process_names %}
+			<option value="{{ process_name }}">{{ process_name }}</option>
+			{% endfor %}
+			<option value="other">Other</option>
+			</select>
+			<input type="text" class="form-control" id="processname_secondary_addstep" name="processname_secondary" style="display:none;" disabled>
+			<script>
+			function ChangeAddProcess() {
+				var is_other = (document.getElementById("processname_addstep").value == "other");
+				document.getElementById("processname_secondary_addstep").style.display = is_other ? "block" : "none";
+				document.getElementById("processname_secondary_addstep").disabled = !is_other;
+			}
+			</script>
+		</div>
+		<button type="submit" class="btn btn-primary">Add step</button>
+	</form>
+	
+	<br/>
+	<br/>
+	<div style="display: flex; justify-content: space-between;">
+		<a href="/samples/steps.csv?uid={{ uid }}" download="{{ sample_name }}_steps.csv"><button type="submit" class="btn btn-primary">Download process flow as CSV</button></a>
+		<button type="submit" class="btn btn-primary" onclick="UploadCSV(false);">Add process flow from CSV</button>
+		<button type="submit" class="btn btn-danger" onclick="UploadCSV(true);">Replace process flow with CSV</button>
+	</div>
+	<form action="/samples/change_steps.csv" method="post" id="upload_csv_form" style="display:none;" enctype="multipart/form-data">
+		<input type="hidden" name="uid" value="{{ uid }}">
+		<input name="steps" type="file" id="upload_csv_input" accept=".csv">
+		<input name="replace" type="hidden" id="upload_csv_replace">
+	</form>
+	
+	<hr class="border-3"/>
+	
+	<div>
+	<div class="table-responsive">
+		<table id="watch" data-toggle="table" data-show-refresh="true" data-sortable="true" data-escape="true" data-url="/samples/watchers.json?uid={{ uid }}">
+		<thead>
+			<tr>
+				<th data-field="Email" data-sortable="true">Users watching this sample</th>
+				<th data-field="DeleteWatcherButton" data-formatter="DeleteWatcherButton">Remove</th>
+			</tr>
+		</thead>
+		</table>
+		</div>
+	</div>
+	<div>
+	<br/>
+	<form action="/samples/add_watcher" method="post">
+		<input type="hidden" id="uid" name="uid" value="{{ uid }}">
+		<label for="project">Add user as watcher</label>
+		<select class="form-select" id="email" name="email">
+		<option disabled selected value> -- select a user -- </option>
+		{% for email in all_emails %}
+		<option value="{{ all_emails.index(email) }}">{{ email }}</option>
+		{% endfor %}
+		</select>
+		<button type="submit" class="btn btn-primary">Add user</button>
+	</form>
+	</div>
+	
+	<div class="modal fade" id="removeWatcherModal" tabindex="-1" aria-labelledby="removeWatcherLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h1 class="modal-title fs-5" id="removeWatcherLabel">Remove watcher</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+				<form action="/samples/delete_watcher" method="post">
+					<div class="modal-body">
+						<p id="removeWatcherInfo"></p>
+						<input type="hidden" name="uid" value="{{ uid }}">
+						<input type="hidden" id="removeWatcherEmail" name="email" value="">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-danger">Confirm</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	
+	<script>
+	function CompletedButton(value, row, idx) {
+		if (row['Completed']) {
+			return '';
+		} else {
+			return '<button type="button" class="btn btn-primary" onclick="CompleteStep(\''+row["ID"]+'\',\''+row["ProcessName"]+'\');">Complete</button>';
+			//return '<form action="/samples/complete_step" method="post"><input type="hidden" id="uid" name="uid" value="'+row['UID']+'"><input type="hidden" id="id" name="id" value="'+row['ID']+'"><button type="submit" class="btn btn-primary">Complete</button></form>';
+		}
+	}
+	function CompleteStep(id, name) {
+		document.getElementById('completeStepInfo').textContent = "Would you like to complete step " + id + " (" + name + ")?";
+		document.getElementById('completeStepId').value = id;
+		$('#completeStepModal').modal('show');
+	}
+	function ActiveButton(value, row, idx) {
+		return '<button type="button" class="btn btn-primary" onclick="ActiveStep(\''+row["ID"]+'\',\''+row["ProcessName"]+'\','+row['Active']+');">'+(row['Active'] == 1 ? 'Deactivate' : 'Activate')+'</button>';
+	}
+	function ActiveStep(id, name, active) {
+		document.getElementById('toggleActiveInfo').textContent = "Would you like to " + (active == 1 ? 'deactivate' : 'activate') + " step " + id + " (" + name + ")?";
+		document.getElementById('toggleActiveId').value = id;
+		document.getElementById('toggleActiveValue').value = (active == 1 ? 0 : 1);
+		$('#toggleActiveModal').modal('show');
+	}
+	function DeleteStepButton(value, row, idx) {
+		return '<button type="button" class="btn btn-danger" onclick="DeleteStep(\''+row["ID"]+'\',\''+row["ProcessName"]+'\');">Delete</button>';
+		//return '<form action="/samples/delete_step" method="post"><input type="hidden" id="uid" name="uid" value="'+row['UID']+'"><input type="hidden" id="id" name="id" value="'+row['ID']+'"><button type="submit" class="btn btn-primary">Delete</button></form>';
+	}
+	function DeleteStep(stepId, stepName) {
+		document.getElementById('deleteStepInfo').textContent = "Would you like to delete step " + stepId + " (" + stepName + ")?";
+		document.getElementById('deleteStepId').value = stepId;
+		$('#deleteStepModal').modal('show');
+	}
+	function DeleteWatcherButton(value, row, idx) {
+		return '<button type="button" class="btn btn-danger" onclick="DeleteWatcher(\''+row["Email"]+'\');">Delete</button>';
+	}
+	function DeleteWatcher(email) {
+		document.getElementById('removeWatcherInfo').textContent = "Would you like to remove " + email + " as a watcher of this sample?";
+		document.getElementById('removeWatcherEmail').value = email;
+		$('#removeWatcherModal').modal('show');
+	}
+	function FormatUsers(value, row, idx) {
+		if (value) {
+			var username = value.split("&")[0].trim().split(" ");
+			var initials = username[0][0] + username[username.length-1][0];
+			if (value.endsWith(" (planned)")) {
+				return initials + " (planned)";
+			} else {
+				return initials;
+			}
+		}
+		return '';
+	}
+	function FormatProcessInfo(value, row, idx) {
+		var unescaped = value.replaceAll("&lt;", "<").replaceAll("&gt;", ">").replaceAll("&quot;", "\"");
+		return unescaped;
+	}
+	function FormatFileLink(value, row, idx) {
+		if (value != null) {
+			return value.replaceAll("/", "/<wbr/>").replaceAll("\\", "\\<wbr/>");
+		}
+		return value;
+	}
+	/*$('#watch').on('dbl-click-cell.bs.table', function (e, field, value, row, element) {
+		document.getElementById('removeWatcherInfo').innerHTML = "Would you like to remove " + value + " as a watcher of this sample?";
+		document.getElementById('removeWatcherEmail').value = row[field];
+		$('#removeWatcherModal').modal('show');
+	});*/
+	$('#sample').on('dbl-click-cell.bs.table', function (e, field, value, row, element) {
+		document.getElementById('editSampleInfo').innerHTML = '';
+		document.getElementById('editSampleField').value = field;
+		document.getElementById('editSampleValue').value = row[field];
+		document.getElementById('editSamplePrettyField').innerHTML = field;
+		$('#editSampleModal').modal('show');
+	});
+	$('#steps').on('dbl-click-cell.bs.table', function (e, field, value, row, element) {
+		if (field == "User") {
+			document.getElementById('editUserInfo').innerHTML = '';
+			document.getElementById('editUserId').value = row['ID'];
+			document.getElementById('editUserField').value = field;
+			if (row[field] && row[field].endsWith(' (planned)')) {
+				document.getElementById('editUserValue').value = row[field].slice(0, -(' (planned)'.length));
+			} else {
+				document.getElementById('editUserValue').value = row[field];
+			}
+			document.getElementById('editUserPrettyField').innerHTML = field;
+			document.getElementById('editUserPlanned').checked = (!row[field] || row[field] == "" || row[field].endsWith(" (planned)"));
+			$('#editUserModal').modal('show');
+		} else if (field == "ProcessInfoFormatted" && !document.getElementById('rawParameterEdit').checked) {
+			var data_url = "/samples/process_variable_table.json?uid="+row['UID']+"&id="+row['ID'];
+			document.getElementById('editParamsInfo').innerHTML = '';
+			document.getElementById('editParamsId').value = row['ID'];
+			$('#editParamsTable').bootstrapTable('refreshOptions', {url: data_url});
+			$('#editParamsTable').bootstrapTable('refresh', {url: data_url});
+			$('#editParamsModal').modal('show');
+		} else if (!field.includes("Button") && field != "Active") {
+			if (field == "ProcessInfoFormatted") {
+				field = "ProcessInfo";
+			}
+			document.getElementById('editStepInfo').innerHTML = '';
+			document.getElementById('editStepId').value = row['ID'];
+			document.getElementById('editStepField').value = field;
+			document.getElementById('editStepValue').value = row[field];
+			document.getElementById('editStepPrettyField').innerHTML = field;
+			$('#editStepModal').modal('show');
+		}
+	});
+	function FinishUploadCSV() {
+		$("#upload_csv_form").submit();
+	}
+	$("#upload_csv_input").change(FinishUploadCSV);
+	function UploadCSV(replace_existing) {
+		$('#upload_csv_replace').val(replace_existing);
+		$('#upload_csv_input').click();
+	}
+	</script>
+</div>
+</div>
+	</body>
+</html>
