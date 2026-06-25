@@ -9,5 +9,5 @@ Installation instructions:
 6. Initialize the database by executing `initialize_db.sh` inside the `sample_tracking` directory.
 7. Setup automatic backups with by running `crontab cron.txt` inside the `sample_tracking` directory. For off-site backups, set up an external script that transfers files from `~/backups` onto external storage. Backups can be restored with `mysqldump` (see example in `initialize_db.sh`).
 8. In cPanel, setup a new Python app, and map your sample tracking directory (e.g., `/home/yourusername/sample_tracking`) to `/samples`.
-8. Start the Python app.
+8. Start the Python app in cPanel.
 9. Go to your new website (`.../samples`) and check that everything works. Debug as necessary.
