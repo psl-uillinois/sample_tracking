@@ -756,7 +756,7 @@ def complete_step():
 		sql_update("Steps set User=%s where (UID=%s AND ID=%s)",
 			f"{user_name} <{user_email}>", int(sanitize(request.form['uid'])), int(sanitize(request.form['id'])))
 	
-	all_watchers = ",".join([x[0] for x in sql_fetch(True, "Email from Watch where UID=%s", int(sanitize(request.form['uid'])))])
+	all_watchers = ",".join([x[0] for x in sql_fetch(True, "Email from Watch where UID=%s", int(sanitize(request.form['uid']))) if x[0] in all_emails])
 	sample_name = get_sample_name(sanitize(request.form['uid']))
 	step_name = sql_fetch(False, "ProcessName from Steps where (UID=%s AND ID=%s)", int(sanitize(request.form['uid'])), int(sanitize(request.form['id'])))[0]
 	current_day = datetime.now().strftime('%Y-%m-%d')
