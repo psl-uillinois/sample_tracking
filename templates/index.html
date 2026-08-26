@@ -34,6 +34,9 @@
 		<a href="/samples/todo"><button class="btn btn-primary" type="button">
 		View todo list
 		</button></a>
+		<button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#downloadAllModal">
+		Export all as CSV
+		</button>
 		<!--<a href="/samples/instruments"><button class="btn btn-primary" type="button">
 		View in-use instruments
 		</button></a>-->
@@ -142,6 +145,38 @@
 		  </div>
 	</form>
 		</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="downloadAllModal" tabindex="-1" aria-labelledby="downloadAllModal" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<h1 class="modal-title fs-5" id="downloadAllLabel">Export all samples</h1>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			  </div>
+				<div class="modal-body">
+					<p id="deleteSampleInfo">Are you sure you want to download the entire database as CSVs? This action may take several minutes to complete.</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+					<button type="submit" class="btn btn-danger" data-bs-dismiss="modal" onclick="DownloadAll()">Confirm</button>
+					<script>
+					async function DownloadAll() {
+						$.getJSON("/samples/samples.json", function(data) {
+							data.forEach((datum, i) => {
+								setTimeout(() => {
+									var link = document.createElement("a");
+									link.href = "/samples/steps.csv?uid=" + datum["UID"];
+									link.download = datum["SampleName"] + ".csv";
+									link.click();
+								}, i * 100);
+							});
+						})
+					}
+					</script>
+				</div>
+			</div>
 		</div>
 	</div>
 
