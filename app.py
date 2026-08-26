@@ -36,7 +36,8 @@ ShibUseHeaders On
 """)
 
 
-app = Flask(__name__)
+application = Flask(__name__)
+app = application
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = get_config('DATABASE_USER')
 app.config['MYSQL_DATABASE_PASSWORD'] = get_config('DATABASE_PW')
